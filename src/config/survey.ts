@@ -1,4 +1,4 @@
-import type { SurveyConfig, SurveyQuestion } from "@/lib/survey-types";
+import type { SurveyConfig, SurveyQuestion, SurveySection } from "@/lib/survey-types";
 
 const likert = (
   id: string,
@@ -639,16 +639,16 @@ export const surveySections: SurveyConfig = [
   },
 ];
 
-export const surveySectionMap = Object.fromEntries(
+export const surveySectionMap: Record<string, SurveySection> = Object.fromEntries(
   surveySections.map((section) => [section.key, section]),
 );
 
-export const surveyQuestions = surveySections.flatMap((section) => section.questions);
+export const surveyQuestions: SurveyQuestion[] = surveySections.flatMap((section) => section.questions);
 
-export const surveyQuestionMap = Object.fromEntries(
+export const surveyQuestionMap: Record<string, SurveyQuestion> = Object.fromEntries(
   surveyQuestions.map((question) => [question.id, question]),
 );
 
-export const surveyQuestionLabels = Object.fromEntries(
+export const surveyQuestionLabels: Record<string, string> = Object.fromEntries(
   surveyQuestions.map((question) => [question.id, question.label]),
 );
