@@ -11,7 +11,7 @@ import { SectionIntro } from "@/components/survey/SectionIntro";
 import { StickyNavigation } from "@/components/survey/StickyNavigation";
 import { SurveyQuestionRenderer } from "@/components/survey/SurveyQuestionRenderer";
 import { Card, CardContent } from "@/components/ui/card";
-import { surveySectionMap, surveySections } from "@/config/survey";
+import { surveySections } from "@/config/survey";
 import type { QuestionValue, SurveyAnswers } from "@/lib/survey-types";
 import { formatDateTime } from "@/lib/utils";
 import { isEmptyAnswer, validateSectionAnswers } from "@/lib/validation";

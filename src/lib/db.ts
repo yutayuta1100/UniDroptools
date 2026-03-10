@@ -4,6 +4,10 @@ import postgres from "postgres";
 
 let sqlInstance: postgres.Sql | null = null;
 
+export type DatabaseClient = postgres.Sql;
+export type DatabaseTransaction = postgres.TransactionSql;
+export type DatabaseExecutor = DatabaseClient | DatabaseTransaction;
+
 export function hasDatabaseUrl() {
   return Boolean(process.env.DATABASE_URL);
 }
