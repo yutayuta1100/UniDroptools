@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { createRespondentCode, RESPONDENT_COOKIE } from "@/lib/respondent";
+import { hasDatabaseUrl } from "@/lib/db";
 import { getSurveySession } from "@/lib/survey-store";
 
 export async function GET() {
@@ -14,7 +15,15 @@ export async function GET() {
       respondentCode = createRespondentCode();
     }
 
-    const response = await getSurveySession(respondentCode);
+    const response = hasDatabaseUrl()
+      ? await getSurveySession(respondentCode)
+      : {
+          status: "in_progress" as const,
+          answers: {},
+          metadata: {
+            persistenceMode: "browser_fallback",
+          },
+        };
     const nextResponse = NextResponse.json({
       respondentCode,
       response: {
@@ -38,7 +47,7 @@ export async function GET() {
   } catch (error) {
     return NextResponse.json(
       {
-        error: error instanceof Error ? error.message : "セッションの取得に失敗しました。",
+        error: error instanceof Error ? error.message : "回答画面の準備に失敗しました。",
       },
       { status: 503 },
     );

@@ -311,10 +311,10 @@ export function SurveyExperience() {
     return (
         <Card className="mx-auto max-w-2xl">
           <CardContent className="space-y-4 p-8">
-            <h2 className="font-serif text-2xl text-foreground">セットアップが必要です</h2>
+            <h2 className="font-serif text-2xl text-foreground">回答画面を準備できませんでした</h2>
             <p className="text-sm leading-7 text-muted-foreground">{pageError}</p>
             <p className="text-sm leading-7 text-muted-foreground">
-              環境変数を設定したうえで、再読み込みしてください。
+              少し時間をおいて再読み込みしてください。
             </p>
           </CardContent>
         </Card>
