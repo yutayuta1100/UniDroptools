@@ -1,4 +1,5 @@
 module.exports = {
-  extends: ["next/core-web-vitals"],
+  root: true,
+  extends: ["next/core-web-vitals", "next/typescript"],
   ignorePatterns: [".next/", "node_modules/", "dist/", "coverage/"],
 };
