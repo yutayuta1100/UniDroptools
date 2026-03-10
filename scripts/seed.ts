@@ -2,6 +2,11 @@ import bcrypt from "bcryptjs";
 import postgres from "postgres";
 
 import { surveySections } from "../src/config/survey";
+import {
+  tsukubaCircleAffiliations,
+  tsukubaCommitteeAffiliations,
+  tsukubaSchoolAffiliations,
+} from "../src/data/tsukuba-directory";
 import { suggestTags } from "../src/lib/free-text";
 import type { SurveyAnswers } from "../src/lib/survey-types";
 
@@ -75,14 +80,9 @@ type PersonaPreset = {
   };
 };
 
-const affiliations = [
-  "情報学群",
-  "理工学群",
-  "体育専門学群",
-  "社会・国際学群",
-  "芸術専門学群",
-  "システム情報工学研究群",
-];
+const schoolAffiliations = tsukubaSchoolAffiliations;
+const committeeAffiliations = tsukubaCommitteeAffiliations;
+const circleAffiliations = tsukubaCircleAffiliations;
 
 const grades = ["b1", "b2", "b3", "b4", "m1", "m2"];
 
@@ -257,7 +257,7 @@ const personas: PersonaPreset[] = [
       dropLine: "まだ決め手が弱い",
       chatBarrier: "知らない相手に何を送ればいいか分からず、かなり気まずかったです。",
       chatEnabler: "正直あまりなかったです。",
-      chatImprove: "会話の導線をUI側でかなり支援しないと始まりづらいです。",
+      chatImprove: "会話の導線を画面側でかなり支援しないと始まりづらいです。",
       safetyNeed: "除外、通報、スクショ抑止、本人確認の考え方まで見せてほしいです。",
       npsReason: "静かな雰囲気は悪くないけど、長さと納得感の弱さで人には勧めにくいです。",
       describeToFriend: "価値観診断っぽく始まるけど、実態はまだマッチングアプリ寄りに見えるサービス。",
@@ -379,13 +379,13 @@ const personas: PersonaPreset[] = [
       dropLine: "少し説明不足",
       chatBarrier: "画面の空気が静かすぎて、最初の一通を打つきっかけが弱かったです。",
       chatEnabler: "相性理由が短くあるのは助かりました。",
-      chatImprove: "UI 上で最初の行動をもっと促してほしいです。",
+      chatImprove: "画面上で最初の行動をもっと促してほしいです。",
       safetyNeed: "データの扱いとスクショ周りのガイドは明示してほしいです。",
       npsReason: "方向性は面白いですが、初見のわかりにくさで少し損をしていると思います。",
       describeToFriend: "筑波向けの価値観診断系サービスだけど、まだ説明が少し難しい感じ。",
       bestPart: "一人ずつ届く設計",
       weakestPart: "初見の理解しづらさ",
-      hiddenDiscomfort: "静かで知的な雰囲気は良いのに、UI の案内不足で逆に距離を感じる瞬間があります。",
+      hiddenDiscomfort: "静かで知的な雰囲気は良いのに、画面の案内不足で逆に距離を感じる瞬間があります。",
       whyNotSpread: "人に勧めるとき、自分もまだ説明しきれない感じが残ると広がりにくいです。",
       oneFix: "最初の説明を視覚的に整理する。",
       uncoolPoint: "おしゃれに抑えすぎて、行動のきっかけが少し薄いです。",
@@ -413,23 +413,93 @@ function withVariance(base: number, rand: () => number, spread = 1) {
   return clamp(base + delta, 1, 5);
 }
 
+function mapPretestImpression(value: string) {
+  switch (value) {
+    case "interesting_diagnosis":
+      return "curious_about_diagnosis";
+    case "campus_connection_service":
+      return "cooperative_test_mode";
+    case "basically_matching_app":
+      return "guarded_by_romance";
+    case "unclear":
+    case "felt_suspicious":
+    default:
+      return "half_skeptical";
+  }
+}
+
+function mapPretestConcerns(values: string[]) {
+  return values
+    .map((value) => {
+      switch (value) {
+        case "embarrassing":
+          return "felt_like_dating_service";
+        case "uncertain_user_base":
+          return "not_sure_value";
+        default:
+          return value;
+      }
+    })
+    .filter((value, index, array) => array.indexOf(value) === index);
+}
+
+function mapPretestFocusPoints(preset: PersonaPreset) {
+  const next: string[] = [];
+
+  if (
+    preset.participationReasons.includes("interested_in_diagnosis") ||
+    preset.signupDrivers.includes("values_diagnosis")
+  ) {
+    next.push("diagnosis_load");
+  }
+  if (preset.signupDrivers.includes("one_drop_per_week")) {
+    next.push("drop_first_view");
+  }
+  if (
+    preset.signupDrivers.includes("no_face_photo") ||
+    preset.signupDrivers.includes("tsukuba_only")
+  ) {
+    next.push("safety_design");
+  }
+  if (preset.concernsBeforeSignup.includes("awkward_after_match")) {
+    next.push("chat_start");
+  }
+  if (preset.nps <= 6 || preset.impressionBeforeSignup === "basically_matching_app") {
+    next.push("compatibility_reasoning");
+  }
+  if (next.length < 3) {
+    next.push("spread_risk");
+  }
+
+  return Array.from(new Set(next)).slice(0, 3);
+}
+
+function mapChatAtmosphere(value: string) {
+  return value === "ui_hard_to_use" ? "screen_hard_to_use" : value;
+}
+
 function buildAnswers(preset: PersonaPreset, index: number): SurveyAnswers {
   const rand = mulberry32(index + 17);
   const grade = grades[index % grades.length];
-  const affiliation = affiliations[index % affiliations.length];
+  const schoolAffiliation = schoolAffiliations[index % schoolAffiliations.length];
+  const committeeAffiliation =
+    index % 3 === 0 ? committeeAffiliations[index % committeeAffiliations.length] : null;
+  const circleAffiliation =
+    index % 4 === 0 ? circleAffiliations[index % circleAffiliations.length] : null;
 
   return {
     honest_feedback_consent: ["agreed"],
     no_personal_info_consent: ["agreed"],
     grade,
-    affiliation,
+    school_affiliation: schoolAffiliation,
+    committee_affiliation: committeeAffiliation,
+    circle_affiliation: circleAffiliation,
     gender: preset.gender,
     matching_app_experience: preset.matchingExperience,
-    participation_reasons: preset.participationReasons,
-    service_guess_before_signup: preset.phrases.serviceGuess,
-    impression_before_signup: preset.impressionBeforeSignup,
-    concerns_before_signup: preset.concernsBeforeSignup,
-    signup_drivers: preset.signupDrivers,
+    impression_before_signup: mapPretestImpression(preset.impressionBeforeSignup),
+    concerns_before_signup: mapPretestConcerns(preset.concernsBeforeSignup),
+    pretest_focus_points: mapPretestFocusPoints(preset),
+    pretest_unknowns: preset.phrases.serviceGuess,
     biggest_hangup_before_signup: preset.phrases.biggestHangup,
     signup_ease: withVariance(preset.signupEase, rand),
     signup_stumbling_points: preset.signupStumblingPoints,
@@ -457,7 +527,7 @@ function buildAnswers(preset: PersonaPreset, index: number): SurveyAnswers {
     first_message_ease: withVariance(preset.firstMessageEase, rand),
     first_message_hesitation: preset.firstMessageHesitation,
     first_message_confusion: withVariance(preset.firstMessageConfusion, rand),
-    chat_atmosphere: preset.chatAtmosphere,
+    chat_atmosphere: mapChatAtmosphere(preset.chatAtmosphere),
     chat_barriers: preset.phrases.chatBarrier,
     chat_enablers: preset.phrases.chatEnabler,
     template_interest: preset.templateInterest,

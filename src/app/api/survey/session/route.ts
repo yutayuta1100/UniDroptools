@@ -19,8 +19,10 @@ export async function GET() {
       ? await getSurveySession(respondentCode)
       : {
           status: "in_progress" as const,
+          submittedAt: null,
           answers: {},
           metadata: {
+            surveyVersion: "2026-03-tester-v2",
             persistenceMode: "browser_fallback",
           },
         };
@@ -28,6 +30,7 @@ export async function GET() {
       respondentCode,
       response: {
         status: response.status,
+        submittedAt: response.submittedAt ?? null,
         answers: response.answers,
         metadata: response.metadata,
       },

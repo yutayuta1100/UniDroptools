@@ -68,6 +68,7 @@ export async function POST(request: Request) {
         response: {
           status: "in_progress",
           metadata: {
+            surveyVersion: "2026-03-tester-v2",
             persistenceMode: "browser_fallback",
             lastSavedSectionKey: parsed.sectionKey,
           },

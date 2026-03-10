@@ -57,6 +57,8 @@ type DbNoteRow = {
   updated_at: string;
 };
 
+const SURVEY_VERSION = "2026-03-tester-v2";
+
 export type StoredAnalysisTag = {
   id: string;
   responseId: string;
@@ -232,7 +234,7 @@ function buildMetadata(
 
   return {
     ...current,
-    surveyVersion: "2026-03",
+    surveyVersion: SURVEY_VERSION,
     lastSavedSectionKey: sectionKey,
     completedSectionKeys: nextCompleted,
     sectionUpdatedAt: {
@@ -310,7 +312,7 @@ async function getOrCreateResponse(tx: DatabaseExecutor, respondentCode: string)
   const client = asDatabaseClient(tx);
   const [response] = await client<DbResponseRow[]>`
     insert into survey_responses (respondent_code, status, metadata)
-    values (${respondentCode}, 'in_progress', ${client.json({ surveyVersion: "2026-03" })})
+    values (${respondentCode}, 'in_progress', ${client.json({ surveyVersion: SURVEY_VERSION })})
     on conflict (respondent_code)
     do update set updated_at = now()
     returning id, respondent_code, started_at, submitted_at, status, metadata, created_at, updated_at
@@ -435,7 +437,7 @@ export async function submitSurveyResponse({
 
     const nextMetadata = {
       ...existingMetadata,
-      surveyVersion: "2026-03",
+      surveyVersion: SURVEY_VERSION,
       lastSavedSectionKey: "review",
       completedSectionKeys: surveySections.map((section) => section.key),
       sectionUpdatedAt: {

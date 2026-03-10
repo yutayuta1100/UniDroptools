@@ -121,20 +121,19 @@ export function computeResponseScores(response: StoredResponse): ResponseScores 
   const cautionReduction = average(
     [
       mapValue(getStringAnswer(response, "impression_before_signup"), {
-        interesting_diagnosis: 82,
-        campus_connection_service: 76,
-        basically_matching_app: 28,
-        unclear: 46,
-        felt_suspicious: 16,
+        cooperative_test_mode: 86,
+        curious_about_diagnosis: 74,
+        guarded_by_romance: 30,
+        worried_about_effort: 42,
+        half_skeptical: 18,
       }),
       countPenalty(getArrayAnswer(response, "concerns_before_signup"), [
         "noticed_by_acquaintances",
-        "embarrassing",
         "felt_like_dating_service",
         "personal_data",
         "too_long_diagnosis",
         "awkward_after_match",
-        "uncertain_user_base",
+        "not_sure_value",
       ]),
       mapValue(getStringAnswer(response, "closest_category"), {
         matching_app: 18,

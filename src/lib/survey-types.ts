@@ -12,6 +12,8 @@ export type QuestionType =
   | "textarea"
   | "shortText";
 
+export type QuestionOptionLayout = "stack" | "grid";
+
 export type QuestionValue = string | string[] | number | boolean | null;
 
 export type SurveyQuestion = {
@@ -27,6 +29,8 @@ export type SurveyQuestion = {
   scaleLabels?: [string, string];
   allowNotUsed?: boolean;
   rows?: number;
+  suggestions?: string[];
+  optionLayout?: QuestionOptionLayout;
 };
 
 export type SurveySection = {

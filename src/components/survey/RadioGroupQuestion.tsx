@@ -2,6 +2,7 @@
 
 import { QuestionField } from "@/components/survey/question-field";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { cn } from "@/lib/utils";
 import type { SurveyQuestion } from "@/lib/survey-types";
 
 export function RadioGroupQuestion({
@@ -23,7 +24,15 @@ export function RadioGroupQuestion({
       required={question.required}
       error={error}
     >
-      <RadioGroup value={value ?? ""} onValueChange={onChange} className="space-y-3">
+      <RadioGroup
+        value={value ?? ""}
+        onValueChange={onChange}
+        className={cn(
+          question.optionLayout === "grid"
+            ? "grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
+            : "space-y-3",
+        )}
+      >
         {question.options?.map((option) => (
           <label
             key={option.value}

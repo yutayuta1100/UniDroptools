@@ -12,6 +12,11 @@ import { StickyNavigation } from "@/components/survey/StickyNavigation";
 import { SurveyQuestionRenderer } from "@/components/survey/SurveyQuestionRenderer";
 import { Card, CardContent } from "@/components/ui/card";
 import { surveySections } from "@/config/survey";
+import {
+  SURVEY_COMPLETED_STORAGE_KEY,
+  SURVEY_DRAFT_STORAGE_KEY,
+  type CompletedSurveyRecord,
+} from "@/lib/survey-client-storage";
 import type { QuestionValue, SurveyAnswers } from "@/lib/survey-types";
 import { formatDateTime } from "@/lib/utils";
 import { isEmptyAnswer, validateSectionAnswers } from "@/lib/validation";
@@ -20,17 +25,23 @@ type SessionResponse = {
   respondentCode: string;
   response: {
     status: "in_progress" | "submitted";
+    submittedAt?: string | null;
     answers: SurveyAnswers;
     metadata: Record<string, unknown>;
   };
 };
 
-const LOCAL_STORAGE_KEY = "unidrop-survey-draft";
-
 function getFirstIncompleteSectionIndex(answers: SurveyAnswers) {
   return surveySections.findIndex((section) =>
     section.questions.some((question) => question.required && isEmptyAnswer(answers[question.id] ?? null)),
   );
+}
+
+function scrollToPageTop() {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
 }
 
 export function SurveyExperience() {
@@ -63,7 +74,17 @@ export function SurveyExperience() {
 
         if (!mounted) return;
 
-        const localDraftRaw = window.localStorage.getItem(LOCAL_STORAGE_KEY);
+        const localCompletedRaw = window.localStorage.getItem(SURVEY_COMPLETED_STORAGE_KEY);
+        const localCompleted = localCompletedRaw
+          ? (JSON.parse(localCompletedRaw) as CompletedSurveyRecord | null)
+          : null;
+
+        if (localCompleted && localCompleted.respondentCode === payload.respondentCode) {
+          router.replace("/survey/complete");
+          return;
+        }
+
+        const localDraftRaw = window.localStorage.getItem(SURVEY_DRAFT_STORAGE_KEY);
         const localDraft = localDraftRaw ? (JSON.parse(localDraftRaw) as SessionResponse | null) : null;
         const mergedAnswers =
           localDraft && localDraft.respondentCode === payload.respondentCode
@@ -75,6 +96,15 @@ export function SurveyExperience() {
         setHasUnsavedChanges(false);
 
         if (payload.response.status === "submitted") {
+          window.localStorage.removeItem(SURVEY_DRAFT_STORAGE_KEY);
+          window.localStorage.setItem(
+            SURVEY_COMPLETED_STORAGE_KEY,
+            JSON.stringify({
+              respondentCode: payload.respondentCode,
+              submittedAt: payload.response.submittedAt ?? new Date().toISOString(),
+              answers: payload.response.answers,
+            } satisfies CompletedSurveyRecord),
+          );
           router.replace("/survey/complete");
           return;
         }
@@ -116,7 +146,7 @@ export function SurveyExperience() {
     if (!respondentCode) return;
 
     window.localStorage.setItem(
-      LOCAL_STORAGE_KEY,
+      SURVEY_DRAFT_STORAGE_KEY,
       JSON.stringify({
         respondentCode,
         response: {
@@ -229,10 +259,12 @@ export function SurveyExperience() {
 
       if (currentSectionIndex === surveySections.length - 1) {
         setMode("review");
+        scrollToPageTop();
         return;
       }
 
       setCurrentSectionIndex((index) => Math.min(index + 1, surveySections.length - 1));
+      scrollToPageTop();
     });
   }
 
@@ -262,6 +294,9 @@ export function SurveyExperience() {
         const payload = (await response.json()) as {
           error?: string;
           errors?: Record<string, string>;
+          response?: {
+            submittedAt?: string;
+          };
         };
 
         if (!response.ok) {
@@ -274,6 +309,7 @@ export function SurveyExperience() {
             if (sectionIndex >= 0) {
               setCurrentSectionIndex(sectionIndex);
               setMode("survey");
+              scrollToPageTop();
             }
             setErrors(payload.errors);
           }
@@ -281,7 +317,15 @@ export function SurveyExperience() {
           throw new Error(payload.error ?? "送信に失敗しました。");
         }
 
-        window.localStorage.removeItem(LOCAL_STORAGE_KEY);
+        window.localStorage.removeItem(SURVEY_DRAFT_STORAGE_KEY);
+        window.localStorage.setItem(
+          SURVEY_COMPLETED_STORAGE_KEY,
+          JSON.stringify({
+            respondentCode,
+            submittedAt: payload.response?.submittedAt ?? new Date().toISOString(),
+            answers,
+          } satisfies CompletedSurveyRecord),
+        );
         setHasUnsavedChanges(false);
         toast.success("回答を送信しました。");
         router.push("/survey/complete");
@@ -331,7 +375,10 @@ export function SurveyExperience() {
         ) : null}
         <ConfirmationScreen
           answers={answers}
-          onBack={() => setMode("survey")}
+          onBack={() => {
+            setMode("survey");
+            scrollToPageTop();
+          }}
           onSubmit={handleSubmit}
           isSubmitting={isSubmitting}
         />
@@ -393,6 +440,7 @@ export function SurveyExperience() {
         onBack={() => {
           setErrors({});
           setCurrentSectionIndex((index) => Math.max(0, index - 1));
+          scrollToPageTop();
         }}
         onSaveDraft={handleSaveDraft}
         onNext={handleNext}

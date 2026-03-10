@@ -124,7 +124,7 @@ export default async function AdminDashboardPage({
               name="impressionBeforeSignup"
               defaultValue={filters.impressionBeforeSignup ?? ""}
             >
-              <option value="">登録前印象: 全体</option>
+              <option value="">テスト参加前印象: 全体</option>
               {surveyQuestionMap.impression_before_signup.options?.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}

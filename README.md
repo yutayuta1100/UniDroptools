@@ -280,6 +280,7 @@ git push -u origin main
 ## フォーム定義の編集方法
 
 フォーム定義の source of truth は `src/config/survey.ts` です。
+筑波大学の学類・委員会・サークル候補は `src/data/tsukuba-directory.ts` にまとめています。
 
 ### 質問文を変更する
 
