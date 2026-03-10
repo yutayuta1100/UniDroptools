@@ -2,6 +2,7 @@ import "server-only";
 
 import { surveyQuestionMap, surveyQuestions, surveySectionMap, surveySections } from "@/config/survey";
 import {
+  asDatabaseClient,
   getSql,
   hasDatabaseUrl,
   type DatabaseClient,
@@ -133,7 +134,7 @@ async function loadResponsesByWhere(
   db: DatabaseClient = getSql(),
 ) {
   ensureDatabase();
-  const client = db;
+  const client = asDatabaseClient(db);
 
   const responses = whereSql
     ? await client.unsafe<DbResponseRow[]>(
@@ -267,18 +268,20 @@ async function upsertAnswers(
   normalizedAnswers: SurveyAnswers,
   questions: SurveyQuestion[],
 ) {
+  const client = asDatabaseClient(tx);
+
   for (const question of questions) {
     const value = normalizedAnswers[question.id];
 
     if (isEmptyAnswer(value)) {
-      await tx`
+      await client`
         delete from survey_answers
         where response_id = ${responseId} and question_id = ${question.id}
       `;
       continue;
     }
 
-    await tx`
+    await client`
       insert into survey_answers (
         response_id,
         question_id,
@@ -290,7 +293,7 @@ async function upsertAnswers(
         ${responseId},
         ${question.id},
         ${question.type},
-        ${tx.json(value)},
+        ${client.json(value)},
         ${extractAnswerText(value)}
       )
       on conflict (response_id, question_id)
@@ -304,7 +307,7 @@ async function upsertAnswers(
 }
 
 async function getOrCreateResponse(tx: DatabaseExecutor, respondentCode: string) {
-  const client = tx;
+  const client = asDatabaseClient(tx);
   const [response] = await client<DbResponseRow[]>`
     insert into survey_responses (respondent_code, status, metadata)
     values (${respondentCode}, 'in_progress', ${client.json({ surveyVersion: "2026-03" })})
@@ -371,6 +374,7 @@ export async function saveSectionAnswers({
   const sql = getSql();
 
   const responseId = await sql.begin(async (tx) => {
+    const client = asDatabaseClient(tx);
     const response = await getOrCreateResponse(tx, respondentCode);
 
     if (response.status === "submitted") {
@@ -381,9 +385,9 @@ export async function saveSectionAnswers({
 
     const nextMetadata = buildMetadata(normalizeMetadata(response.metadata), sectionKey, completeSection);
 
-    await tx`
+    await client`
       update survey_responses
-      set metadata = ${tx.json(nextMetadata)}, updated_at = now()
+      set metadata = ${client.json(nextMetadata)}, updated_at = now()
       where id = ${response.id}
     `;
     return response.id;
@@ -414,6 +418,7 @@ export async function submitSurveyResponse({
   const sql = getSql();
 
   const responseId = await sql.begin(async (tx) => {
+    const client = asDatabaseClient(tx);
     const response = await getOrCreateResponse(tx, respondentCode);
 
     if (response.status === "submitted") {
@@ -439,12 +444,12 @@ export async function submitSurveyResponse({
       },
     };
 
-    await tx`
+    await client`
       update survey_responses
       set
         status = 'submitted',
         submitted_at = now(),
-        metadata = ${tx.json(nextMetadata)},
+        metadata = ${client.json(nextMetadata)},
         updated_at = now()
       where id = ${response.id}
     `;

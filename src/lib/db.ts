@@ -8,6 +8,10 @@ export type DatabaseClient = postgres.Sql;
 export type DatabaseTransaction = postgres.TransactionSql;
 export type DatabaseExecutor = DatabaseClient | DatabaseTransaction;
 
+export function asDatabaseClient(executor: DatabaseExecutor): DatabaseClient {
+  return executor as unknown as DatabaseClient;
+}
+
 export function hasDatabaseUrl() {
   return Boolean(process.env.DATABASE_URL);
 }
