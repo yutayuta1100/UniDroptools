@@ -151,6 +151,7 @@ npm run build
 - `DATABASE_URL`
   - PostgreSQL 接続文字列
   - Supabase Postgres を使う場合もここに入れます
+  - 管理画面で一括分析するには必須です
 - `NEXT_PUBLIC_SITE_URL`
   - 公開 URL
   - 例: `https://unidrop-survey.vercel.app`

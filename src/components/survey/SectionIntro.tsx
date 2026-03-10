@@ -19,13 +19,15 @@ export function SectionIntro({
       </div>
       <div className="space-y-2">
         <h2 className="font-serif text-3xl tracking-tight text-foreground sm:text-4xl">{title}</h2>
-        <div className="space-y-2">
-          {description.map((line) => (
-            <p key={line} className="max-w-3xl text-sm leading-7 text-muted-foreground sm:text-base">
-              {line}
-            </p>
-          ))}
-        </div>
+        {description.length > 0 ? (
+          <div className="space-y-2">
+            {description.map((line) => (
+              <p key={line} className="max-w-3xl text-sm leading-7 text-muted-foreground sm:text-base">
+                {line}
+              </p>
+            ))}
+          </div>
+        ) : null}
       </div>
     </div>
   );

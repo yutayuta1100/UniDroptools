@@ -35,7 +35,8 @@ export function ShortTextQuestion({
       .filter((candidate) => normalizeSearchValue(candidate).includes(normalizedQuery))
       .slice(0, 8);
   }, [normalizedQuery, suggestions]);
-  const shouldShowSuggestions = isFocused && normalizedQuery.length > 0;
+  const shouldShowSuggestions =
+    isFocused && normalizedQuery.length > 0 && suggestions.length > 0;
 
   return (
     <QuestionField

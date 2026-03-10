@@ -1,6 +1,5 @@
 import type { SurveyConfig, SurveyQuestion, SurveySection } from "@/lib/survey-types";
 import {
-  tsukubaCircleAffiliations,
   tsukubaCommitteeAffiliations,
   tsukubaSchoolAffiliations,
 } from "@/data/tsukuba-directory";
@@ -140,12 +139,9 @@ export const surveySections: SurveyConfig = [
       shortText(
         "circle_affiliation",
         "所属しているサークル",
-        "入っていれば回答してください。候補名の一部で検索できます。",
+        "入っていれば自由に入力してください。",
         false,
         "例: 写真部 / JAZZ愛好会 / つくよさ",
-        {
-          suggestions: tsukubaCircleAffiliations,
-        },
       ),
       {
         id: "gender",
@@ -181,9 +177,7 @@ export const surveySections: SurveyConfig = [
     title: "テスト参加前",
     sortOrder: 2,
     estimatedMinutes: "3分",
-    description: [
-      "今回はテスター前提で参加してもらっているので、参加前の時点で何を気にしていたか、どこを確かめようとしていたかを聞きます。",
-    ],
+    description: [],
     questions: [
       {
         id: "impression_before_signup",
@@ -217,29 +211,6 @@ export const surveySections: SurveyConfig = [
         ],
         minSelections: 1,
       },
-      {
-        id: "pretest_focus_points",
-        type: "checkbox",
-        required: true,
-        label: "テスト前の時点で、特に見ようと思っていた点",
-        helperText: "最大3つまで選べます。",
-        options: [
-          { value: "diagnosis_load", label: "55問の診断を最後までやれるか" },
-          { value: "drop_first_view", label: "Dropを見た瞬間に気持ちが動くか" },
-          { value: "compatibility_reasoning", label: "相性スコアと理由に納得感があるか" },
-          { value: "safety_design", label: "顔写真なし・筑波限定・ニックネームが安心につながるか" },
-          { value: "chat_start", label: "最初の1通が送りやすいか" },
-          { value: "spread_risk", label: "このままだと広がらない理由が見えるか" },
-          { value: "other", label: "その他" },
-        ],
-        minSelections: 1,
-        maxSelections: 3,
-      },
-      textarea(
-        "pretest_unknowns",
-        "テスト参加前の時点で、まだ見えていなかったこと",
-        "参加前に判断しづらかったこと、想像しづらかったことを書いてください。",
-      ),
       textarea(
         "biggest_hangup_before_signup",
         "テスト参加前に一番ひっかかっていた点",
@@ -253,9 +224,7 @@ export const surveySections: SurveyConfig = [
     title: "登録体験",
     sortOrder: 3,
     estimatedMinutes: "3分",
-    description: [
-      "登録動線そのものの摩擦や、説明不足だった箇所を把握するためのセクションです。",
-    ],
+    description: [],
     questions: [
       likert("signup_ease", "登録のしやすさ", "1がかなりしづらい、5がかなりしやすい。"),
       {
@@ -297,16 +266,14 @@ export const surveySections: SurveyConfig = [
     title: "診断体験",
     sortOrder: 4,
     estimatedMinutes: "4分",
-    description: [
-      "55問というボリュームが体験価値として成立しているか、どこで負荷が上がるかを知りたいです。",
-    ],
+    description: [],
     questions: [
       likert("diagnosis_satisfaction", "診断全体の満足度", "1がかなり低い、5がかなり高い。"),
       {
         id: "diagnosis_length_impression",
         type: "radio",
         required: true,
-        label: "55問の長さの印象",
+        label: "診断の長さの印象",
         helperText: "体感に近いものを選んでください。",
         options: [
           { value: "very_long", label: "かなり長い" },
@@ -348,7 +315,7 @@ export const surveySections: SurveyConfig = [
       ),
       likert(
         "diagnosis_fun_over_hassle",
-        "55問にかけた時間に見合う手応えがあったか",
+        "診断にかけた時間に見合う手応えがあったか",
         "1が見合わなかった、5がかなり見合った。",
       ),
       {
@@ -380,9 +347,7 @@ export const surveySections: SurveyConfig = [
     title: "Drop体験",
     sortOrder: 5,
     estimatedMinutes: "4分",
-    description: [
-      "Drop を見た瞬間の感情、相性の納得感、顔写真なし設計の受け止められ方を見ます。",
-    ],
+    description: [],
     questions: [
       {
         id: "drop_first_impression",
@@ -445,9 +410,7 @@ export const surveySections: SurveyConfig = [
     title: "チャット体験",
     sortOrder: 6,
     estimatedMinutes: "3分",
-    description: [
-      "最初の1通が送りやすいか、気まずさの正体が画面の使いにくさなのか心理的な迷いなのかを見分けます。",
-    ],
+    description: [],
     questions: [
       likert("first_message_ease", "最初の1通の送りやすさ", "1がかなり送りにくい、5がかなり送りやすい。"),
       {
@@ -518,9 +481,7 @@ export const surveySections: SurveyConfig = [
     title: "安心感",
     sortOrder: 7,
     estimatedMinutes: "3分",
-    description: [
-      "匿名性の設計が安心につながっているか、それとも逆に不安を増やしているかを確認します。",
-    ],
+    description: [],
     questions: [
       likert(
         "tsukuba_only_safety",
@@ -572,9 +533,7 @@ export const surveySections: SurveyConfig = [
     title: "全体評価",
     sortOrder: 8,
     estimatedMinutes: "3分",
-    description: [
-      "総合評価だけでなく、友達にどう説明されるかでプロダクトのポジションを見ます。",
-    ],
+    description: [],
     questions: [
       {
         id: "nps",
@@ -615,9 +574,7 @@ export const surveySections: SurveyConfig = [
     title: "本音回収",
     sortOrder: 9,
     estimatedMinutes: "4分",
-    description: [
-      "最後は遠慮なしでお願いします。きれいな意見より、本音の違和感を取りにいくセクションです。",
-    ],
+    description: [],
     questions: [
       textarea(
         "hidden_core_discomfort",

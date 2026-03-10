@@ -7,17 +7,17 @@
   --foreground: 200 28% 14%;
   --card: 0 0% 100%;
   --card-foreground: 200 28% 14%;
-  --primary: 189 29% 26%;
-  --primary-foreground: 48 33% 98%;
-  --secondary: 44 18% 92%;
-  --secondary-foreground: 200 22% 20%;
-  --muted: 42 16% 93%;
+  --primary: 24 75% 41%;
+  --primary-foreground: 40 100% 98%;
+  --secondary: 30 36% 92%;
+  --secondary-foreground: 24 24% 22%;
+  --muted: 30 22% 94%;
   --muted-foreground: 200 10% 42%;
-  --accent: 164 18% 90%;
-  --accent-foreground: 192 38% 20%;
-  --border: 42 14% 84%;
-  --input: 42 14% 82%;
-  --ring: 189 29% 34%;
+  --accent: 26 44% 88%;
+  --accent-foreground: 24 38% 22%;
+  --border: 30 18% 82%;
+  --input: 30 18% 80%;
+  --ring: 24 75% 46%;
   --destructive: 2 72% 46%;
   --destructive-foreground: 0 0% 98%;
   --success: 154 38% 29%;
@@ -35,8 +35,8 @@ html {
 body {
   @apply bg-background text-foreground antialiased;
   background-image:
-    radial-gradient(circle at top left, rgba(141, 179, 170, 0.16), transparent 36%),
-    radial-gradient(circle at bottom right, rgba(88, 128, 124, 0.1), transparent 32%);
+    radial-gradient(circle at top left, rgba(182, 83, 26, 0.12), transparent 36%),
+    radial-gradient(circle at bottom right, rgba(140, 74, 34, 0.08), transparent 32%);
 }
 
 a {
@@ -44,5 +44,5 @@ a {
 }
 
 ::selection {
-  background: rgba(70, 112, 108, 0.18);
+  background: rgba(182, 83, 26, 0.18);
 }

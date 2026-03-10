@@ -308,7 +308,7 @@ const personas: PersonaPreset[] = [
     closestCategory: "romantic_values_service",
     phrases: {
       serviceGuess: "価値観診断として面白そうだけど、少し恋愛寄りでもあるサービスだと思っていました。",
-      biggestHangup: "55問と聞いた瞬間に、ちゃんと最後までやる気が持つかは不安でした。",
+      biggestHangup: "質問数が多いと聞いた瞬間に、ちゃんと最後までやる気が持つかは不安でした。",
       confusingPoint: "説明は読めるけど、診断の長さに対する心構えがないまま始まる感じでした。",
       missingExplanation: "途中保存できることや、所要時間の目安はもっと前に出してよいです。",
       memorableQuestion: "休日の過ごし方や返信ペースに関する質問は実感に近かったです。",
@@ -443,37 +443,6 @@ function mapPretestConcerns(values: string[]) {
     .filter((value, index, array) => array.indexOf(value) === index);
 }
 
-function mapPretestFocusPoints(preset: PersonaPreset) {
-  const next: string[] = [];
-
-  if (
-    preset.participationReasons.includes("interested_in_diagnosis") ||
-    preset.signupDrivers.includes("values_diagnosis")
-  ) {
-    next.push("diagnosis_load");
-  }
-  if (preset.signupDrivers.includes("one_drop_per_week")) {
-    next.push("drop_first_view");
-  }
-  if (
-    preset.signupDrivers.includes("no_face_photo") ||
-    preset.signupDrivers.includes("tsukuba_only")
-  ) {
-    next.push("safety_design");
-  }
-  if (preset.concernsBeforeSignup.includes("awkward_after_match")) {
-    next.push("chat_start");
-  }
-  if (preset.nps <= 6 || preset.impressionBeforeSignup === "basically_matching_app") {
-    next.push("compatibility_reasoning");
-  }
-  if (next.length < 3) {
-    next.push("spread_risk");
-  }
-
-  return Array.from(new Set(next)).slice(0, 3);
-}
-
 function mapChatAtmosphere(value: string) {
   return value === "ui_hard_to_use" ? "screen_hard_to_use" : value;
 }
@@ -498,8 +467,6 @@ function buildAnswers(preset: PersonaPreset, index: number): SurveyAnswers {
     matching_app_experience: preset.matchingExperience,
     impression_before_signup: mapPretestImpression(preset.impressionBeforeSignup),
     concerns_before_signup: mapPretestConcerns(preset.concernsBeforeSignup),
-    pretest_focus_points: mapPretestFocusPoints(preset),
-    pretest_unknowns: preset.phrases.serviceGuess,
     biggest_hangup_before_signup: preset.phrases.biggestHangup,
     signup_ease: withVariance(preset.signupEase, rand),
     signup_stumbling_points: preset.signupStumblingPoints,
