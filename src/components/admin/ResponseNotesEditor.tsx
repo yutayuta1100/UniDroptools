@@ -12,8 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 const notesSchema = z.object({
-  memo: z.string().max(2000, "2000文字以内で入力してください。").default(""),
-  internalComment: z.string().max(2000, "2000文字以内で入力してください。").default(""),
+  memo: z.string().max(2000, "2000文字以内で入力してください。"),
+  internalComment: z.string().max(2000, "2000文字以内で入力してください。"),
 });
 
 type NotesFormValues = z.infer<typeof notesSchema>;
